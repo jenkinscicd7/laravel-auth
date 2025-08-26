@@ -12,8 +12,7 @@ use Illuminate\Http\Request;
 class AuthController extends Controller
 {
     //
-
-    public function register(Request $request) {
+    public function register(Request $request){
         $user = User::create([
             'first_name'=>$request->first_name,
             'last_name'=>$request->last_name,
@@ -22,10 +21,9 @@ class AuthController extends Controller
             'email'=> $request->email,
             'password'=> Hash::make($request->password),
         ]);
+    
          event(new Registered($user));
-        // Send email verification
-        $user->sendEmailVerificationNotification();
-
+        
         return response()->json(['message' => 'Registered successfully. Check your email for verification link.']);
     }
 
