@@ -15,10 +15,13 @@ class VerifyEmailController extends Controller
 {
     public function verify(Request $request, $id, $hash)
     {
-    $id = $request->query('id');
-    $hash = $request->query('hash');
-
-    $user = User::findOrFail($id);
+    $user = User::find($id);
+    if(!$user){
+        return response()->json([
+            'status'=>false,
+            'message'=>'user not found in the database'
+        ], 404);
+    }
 
     if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
         return response()->json([

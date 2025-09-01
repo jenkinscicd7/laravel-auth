@@ -20,8 +20,8 @@ Route::post('/login', [AuthController::class, 'login'])
 ->middleware('api')
 ->name('login');
 
-Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, '__invoke'])
-     ->middleware(['auth:sanctum', 'signed', 'throttle:6,1'])
+Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])
+     ->middleware(['signed', 'throttle:6,1'])
      ->name('verification.verify');
      
 Route::post('/email/verification-notification', function (Request $request) {
