@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 
 use Illuminate\Http\Request;
@@ -24,23 +25,31 @@ class AuthController extends Controller
     
          event(new Registered($user));
         
-        return response()->json(['message' => 'Registered successfully. Check your email for verification link.']);
+        return response()->json(['message' => 'Registered successfully.']);
+
     }
 
     public function login(Request $request) {
-        $user = User::where('email', $request->email)->first();
+    $user = User::where('email', $request->email)->first();
 
-        if(!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['error' => 'Invalid credentials'], 401);
-        }
-
-        if(!$user->hasVerifiedEmail()) {
-            return response()->json(['error' => 'Email not verified'], 403);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json(['token' => $token]);
+    if (!$user || !Hash::check($request->password, $user->password)) {
+        return response()->json(['message' => 'Invalid credentials'], 401);
     }
+
+    if (!$user->hasVerifiedEmail()) {
+        return response()->json(['message' => 'Email not verified'], 403);
+    }
+
+    $token = $user->createToken('auth_token')->plainTextToken;
+
+    return response()->json([
+        'message' => 'Login successful',
+        'token'   => $token,
+        'user'    => $user
+    ]);
+}
+
+
 }
 
 

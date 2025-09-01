@@ -4,38 +4,31 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\VerifyEmailController;
+
 
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::post('/register', [AuthController::class, 'register']);
-//displays a message prompting users to verify email
-     
-//handles verification linkRoute::get('/email/verify',
- Route::get('/email/verify', function () {
-    return view('auth.verify-email');
-})->middleware('auth')
-->name('verification.notice');
+Route::post('/register', [AuthController::class, 'register'])
+->middleware('api')
+->name('register');
 
+Route::post('/login', [AuthController::class, 'login'])
+->middleware('api')
+->name('login');
 
-//handler
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-     $request->fulfill(); return redirect('/home'); })
-     ->middleware(['auth', 'signed'])
+Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, '__invoke'])
+     ->middleware(['auth:sanctum', 'signed', 'throttle:6,1'])
      ->name('verification.verify');
-
-//Resend verification email
+     
 Route::post('/email/verification-notification', function (Request $request) {
-     $request->user()->sendEmailVerificationNotification();
-      return back()->with('message', 'Verification link sent!'); })
-      ->middleware(['auth', 'throttle:6,1'])
-      ->name('verification.send');
+    $request->user()->sendEmailVerificationNotification();
+    return response()->json(['message' => 'Verification link sent!']);
+})->middleware(['auth:sanctum', 'throttle:6,1'])
+->name('verification.send');
 
-//use verified middleware to restrict access to verified users
 
-Route::get('/profile', function () {
-// Only verified users can access this route
-})->middleware(['auth', 'verified']);
 
