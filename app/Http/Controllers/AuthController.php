@@ -14,22 +14,50 @@ class AuthController extends Controller
 {
     //
     public function register(Request $request){
-        $user = User::create([
-            'first_name'=>$request->first_name,
-            'last_name'=>$request->last_name,
-            'username' => $request->username,
-            'mobile'=>$request->mobile,
-            'email'=> $request->email,
-            'password'=> Hash::make($request->password),
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string|max:100',
+            'last_name'  => 'required|string|max:100',
+            'username'   => 'required|string|max:50|unique:users,username',
+            'mobile'     => 'required|string|max:20|unique:users,mobile',
+            'email'      => 'required|string|email|max:255|unique:users,email',
+            'password'   => 'required|string|min:8|confirmed',
         ]);
-    
-         event(new Registered($user));
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        $user = User::create([
+            'first_name' => $request->first_name,
+            'last_name'  => $request->last_name,
+            'username'   => $request->username,
+            'mobile'     => $request->mobile,
+            'email'      => $request->email,
+            'password'   => Hash::make($request->password),
+        ]);
+
+    event(new Registered($user));
         
-        return response()->json(['message' => 'Registered successfully.']);
+    return response()->json(['message' => 'Registered successfully.']);
 
     }
 
     public function login(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'email'    => 'required|string|email',
+            'password' => 'required|string|min:8',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
     $user = User::where('email', $request->email)->first();
 
     if (!$user || !Hash::check($request->password, $user->password)) {
@@ -48,7 +76,6 @@ class AuthController extends Controller
         'user'    => $user
     ]);
 }
-
 
 }
 
