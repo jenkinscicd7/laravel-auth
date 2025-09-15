@@ -4,9 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Auth\Notifications\VerifyEmail;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Notifications\Messages\MailMessage;
-
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -16,7 +14,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
+        //'App\Models\Model' => 'App\Policies\ModelPolicy',
     ];
 
     /**
@@ -34,7 +32,6 @@ class AuthServiceProvider extends ServiceProvider
             $expires   = $queryParams['expires'] ?? null;
             $signature = $queryParams['signature'] ?? null;
 
-            // Build a frontend URL (React app)
             $frontendUrl = config('app.frontend_url') . '/signup/email-verification/verify?' . http_build_query([
                 'id'        => $id,
                 'hash'      => $hash,

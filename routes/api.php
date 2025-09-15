@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VerifyEmailController;
+use Illuminate\Support\Facades\Validator;
 
 
 
@@ -25,9 +26,19 @@ Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify']
      ->name('verification.verify');
      
 Route::post('/email/verification-notification', function (Request $request) {
-    $request->user()->sendEmailVerificationNotification();
-    return response()->json(['message' => 'Verification link sent!']);
-})->middleware(['auth:sanctum', 'throttle:6,1'])
+    $validator = Validator::make($request->all(), [
+        'email' => 'required|email|exists:users,email',
+    ]);
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+    $user = User::where('email', $request->email)->first();
+    if ($user->hasVerifiedEmail()) {
+        return response()->json(['message' => 'Email already verified.'], 400);
+    }
+    $user->sendEmailVerificationNotification();
+    return response()->json(['message' => 'Verification link resent.']);
+})->middleware(['throttle:6,1'])
 ->name('verification.send');
 
 
