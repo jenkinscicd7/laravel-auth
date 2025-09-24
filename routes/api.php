@@ -6,12 +6,18 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VerifyEmailController;
 use Illuminate\Support\Facades\Validator;
-
+use App\Http\Controllers\ResetPasswordController;
 
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+Route::post('/forgot-password', [ResetPasswordController::class, 'sendOtp']);
+
+Route::post('/verify-otp', [ResetPasswordController::class, 'verifyOtp']);
+
+Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
 
 Route::post('/register', [AuthController::class, 'register'])
 ->middleware('api')
@@ -40,6 +46,12 @@ Route::post('/email/verification-notification', function (Request $request) {
     return response()->json(['message' => 'Verification link resent.']);
 })->middleware(['throttle:6,1'])
 ->name('verification.send');
+
+Route::get('/profile', function () {
+    // Only verified users may access this route...
+})->middleware(['auth', 'verified']);
+
+
 
 
 
