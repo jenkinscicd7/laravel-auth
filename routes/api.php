@@ -2,12 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VerifyEmailController;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\ResetPasswordController;
-
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -50,8 +48,5 @@ Route::post('/email/verification-notification', function (Request $request) {
 Route::get('/profile', function () {
     // Only verified users may access this route...
 })->middleware(['auth', 'verified']);
-
-
-
 
 

@@ -28,9 +28,6 @@ class ResetPasswordController extends Controller
         ['token' => $otp, 'created_at' => Carbon::now()]
     );
 
-    //Mail::raw("Your password reset code is: $otp", function ($message) use ($request) {
-        //$message->to($request->email)->subject('Password Reset Code');
-    //});
     Mail::send('emails.otp', ['otp' => $otp], function ($message) use ($request) {
     $message->to($request->email)
             ->subject('Your OTP Code');
@@ -61,10 +58,11 @@ public function verifyOtp(Request $request) {
     return response()->json(['message' => 'OTP verified']);
 }
 
-public function resetPassword(Request $request) {
+public function resetPassword(Request $request)
+{
     $request->validate([
         'email' => 'required|email',
-        'password' => 'required|min:6|confirmed'
+        'password' => 'required|min:8|confirmed',
     ]);
 
     $user = User::where('email', $request->email)->first();
